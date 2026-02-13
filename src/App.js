@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { BookOpen, Heart, Sparkles, MessageCircle, Search, Loader } from 'lucide-react';
 
 export default function BibleVerseApp() {
-  const [selectedSituation, setSelectedSituation] = useState('');
   const [customSituation, setCustomSituation] = useState('');
   const [verse, setVerse] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -80,7 +79,6 @@ JSON만 응답하고 다른 설명은 하지 마세요.`
   };
 
   const handleSituationClick = (situationId) => {
-    setSelectedSituation(situationId);
     if (situationId === 'custom') {
       setShowCustomInput(true);
     } else {
@@ -560,7 +558,6 @@ JSON만 응답하고 다른 설명은 하지 마세요.`
               <button
                 onClick={() => {
                   setVerse(null);
-                  setSelectedSituation('');
                   setCustomSituation('');
                 }}
                 style={{
