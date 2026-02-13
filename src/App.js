@@ -30,49 +30,82 @@ export default function BibleVerseApp() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "x-api-key": process.env.REACT_APP_ANTHROPIC_API_KEY || "",
+          "anthropic-version": "2023-06-01"
         },
         body: JSON.stringify({
           model: "claude-sonnet-4-20250514",
-          max_tokens: 1000,
+          max_tokens: 1500,
           messages: [
             {
               role: "user",
               content: `사용자가 "${situationText}" 상황에 있습니다. 
               
-이 상황에 가장 적합한 성경 구절 하나를 찾아주세요. 그리고 다음 정보를 JSON 형식으로 제공해주세요:
+이 상황에 가장 적합한 성경 구절 하나를 찾아주세요. 매번 다른 구절을 추천해주세요.
+
+다음 정보를 JSON 형식으로만 제공해주세요:
 
 {
   "reference": "책 장:절 (예: 시편 23:1)",
-  "text": "성경 구절 원문",
+  "text": "성경 구절 원문 (한글)",
   "context": "이 구절이 나온 성경의 앞뒤 문맥과 배경 설명 (2-3 문장)",
   "meaning": "이 구절이 현재 상황에 어떻게 적용되는지 설명 (2-3 문장)",
   "prayer": "이 말씀을 바탕으로 한 짧은 기도문"
 }
 
-JSON만 응답하고 다른 설명은 하지 마세요.`
+JSON만 응답하고 다른 설명은 하지 마세요. 백틱이나 마크다운 형식도 사용하지 마세요.`
             }
           ],
         })
       });
 
+      if (!response.ok) {
+        throw new Error(`API Error: ${response.status}`);
+      }
+
       const data = await response.json();
       const content = data.content[0].text;
       
-      // JSON 추출
-      const jsonMatch = content.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        const verseData = JSON.parse(jsonMatch[0]);
-        setVerse(verseData);
+      // JSON 파싱
+      let verseData;
+      try {
+        // 백틱 제거 시도
+        const cleanContent = content.replace(/```json\n?|\n?```/g, '').trim();
+        verseData = JSON.parse(cleanContent);
+      } catch (e) {
+        // JSON 매칭 시도
+        const jsonMatch = content.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          verseData = JSON.parse(jsonMatch[0]);
+        } else {
+          throw new Error('JSON 파싱 실패');
+        }
       }
+      
+      setVerse(verseData);
     } catch (error) {
       console.error('Error fetching verse:', error);
-      setVerse({
-        reference: "오류",
-        text: "말씀을 불러오는데 문제가 발생했습니다. 다시 시도해주세요.",
-        context: "",
-        meaning: "",
-        prayer: ""
-      });
+      
+      // 에러 시 미리 준비된 구절 사용 (백업)
+      const backupVerses = {
+        comfort: {
+          reference: "시편 23:4",
+          text: "내가 사망의 음침한 골짜기로 다닐지라도 해를 두려워하지 않을 것은 주께서 나와 함께 하심이라",
+          context: "시편 23편은 하나님을 목자로 비유하며 그분의 보호하심을 노래합니다.",
+          meaning: "어려운 시기에도 하나님께서 함께 하시며 보호하십니다.",
+          prayer: "주님, 이 어려운 시간에도 함께 하심을 믿습니다. 아멘."
+        },
+        anxiety: {
+          reference: "빌립보서 4:6-7",
+          text: "아무 것도 염려하지 말고 다만 모든 일에 기도와 간구로 하나님께 아뢰라",
+          context: "바울이 감옥에서도 기쁨을 잃지 않으며 쓴 편지입니다.",
+          meaning: "염려를 기도로 바꿀 때 하나님의 평안을 경험합니다.",
+          prayer: "주님, 제 염려를 주님께 맡깁니다. 아멘."
+        }
+      };
+      
+      const fallbackVerse = backupVerses[situation] || backupVerses.comfort;
+      setVerse(fallbackVerse);
     } finally {
       setLoading(false);
     }
