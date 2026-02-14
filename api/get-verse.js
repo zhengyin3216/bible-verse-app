@@ -1,4 +1,4 @@
-// Vercel Serverless Function
+// Vercel Serverless Function - Gemini 2.0 Flash Lite 버전
 export default async function handler(req, res) {
   // CORS 헤더 설정
   res.setHeader('Access-Control-Allow-Credentials', true);
@@ -34,9 +34,9 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'API key not configured' });
     }
 
-    // Google Gemini API 호출
+    // ✅ 최신 Gemini 2.0 Flash Lite 모델 사용
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash-lite:generateContent?key=${apiKey}`,
       {
         method: "POST",
         headers: {
@@ -107,12 +107,10 @@ JSON만 응답하고 다른 설명은 하지 마세요. 백틱이나 마크다�
           verseData = JSON.parse(jsonMatch[0]);
         } catch (e2) {
           console.error('JSON parsing failed, using backup verse');
-          // 백업 구절 반환
           return res.status(200).json(getBackupVerse(situation));
         }
       } else {
         console.error('No JSON found in response, using backup verse');
-        // 백업 구절 반환
         return res.status(200).json(getBackupVerse(situation));
       }
     }
@@ -121,7 +119,6 @@ JSON만 응답하고 다른 설명은 하지 마세요. 백틱이나 마크다�
 
   } catch (error) {
     console.error('Server error:', error);
-    // 에러 시에도 백업 구절 반환
     return res.status(200).json(getBackupVerse('comfort'));
   }
 }
@@ -187,6 +184,5 @@ function getBackupVerse(situation) {
     }
   };
   
-  // 상황에 맞는 백업 구절 반환, 없으면 위로 구절
   return backupVerses[situation] || backupVerses['위로가 필요할 때'];
 }
