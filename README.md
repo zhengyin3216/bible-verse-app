@@ -33,7 +33,7 @@
 
 ### Backend
 - **Vercel Serverless Functions** - API 엔드포인트
-- **Hugging Face Inference API** - 무료 AI 모델 (Llama 3.2)
+- **Google Gemini Pro API** - 무료 고품질 AI (한글 특화)
 
 ### Deployment
 - **Vercel** - 배포 및 호스팅
@@ -84,8 +84,8 @@ npm install
 프로젝트 루트에 `.env` 파일 생성:
 
 ```env
-# Hugging Face API Token (https://huggingface.co/settings/tokens에서 발급)
-HUGGINGFACE_API_KEY=your_token_here
+# Google Gemini API Key (https://aistudio.google.com에서 발급)
+GEMINI_API_KEY=your_api_key_here
 ```
 
 ### 4. 개발 서버 실행
@@ -114,7 +114,7 @@ Vercel 대시보드에서 다음 환경 변수를 설정하세요:
 
 | Key | Value | Environments |
 |-----|-------|--------------|
-| `HUGGINGFACE_API_KEY` | your_hf_token_here | Production, Preview, Development |
+| `GEMINI_API_KEY` | your_gemini_key_here | Production, Preview, Development |
 
 ### 자동 배포
 
@@ -151,20 +151,22 @@ git push origin master
 
 ## 📊 API 사용량 & 비용
 
-**Hugging Face Inference API**
+**Google Gemini Pro API**
 - ✅ **완전 무료!** 💰
 - ✅ 신용카드 등록 불필요
-- ✅ 개인 사용 충분한 Rate limit
-- ✅ Fair use policy 적용
+- ✅ 분당 15회 요청 (개인 사용 충분)
+- ✅ 일일 1,500회 요청 제한
+- ✅ 한글 품질 최고 (GPT-4/Claude 수준)
 
 **월 운영비: $0** 🎉
 
-사용 모델: **Llama 3.2 3B Instruct** (Meta 오픈소스)
-- 무료 오픈소스 모델
-- 한글 지원
-- 품질과 속도의 균형
+사용 모델: **Gemini Pro** (Google)
+- 최신 멀티모달 AI
+- 한글 특화 학습
+- 빠른 응답 속도
+- 안정적 서비스
 
-사용량 확인: [Hugging Face Dashboard](https://huggingface.co/settings/tokens)
+사용량 확인: [Google AI Studio](https://aistudio.google.com)
 
 ---
 
@@ -214,8 +216,7 @@ git push origin master
 
 ## 🙏 감사의 말
 
-- [Hugging Face](https://huggingface.co) - 무료 AI 모델 제공
-- [Meta](https://ai.meta.com) - Llama 오픈소스 모델
+- [Google](https://google.com) - Gemini Pro API 무료 제공
 - [Vercel](https://vercel.com) - 무료 호스팅 및 서버리스 함수
 - [Lucide](https://lucide.dev) - 아름다운 아이콘
 - [React](https://react.dev) - 강력한 UI 라이브러리
