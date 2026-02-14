@@ -36,7 +36,7 @@ export default async function handler(req, res) {
 
     // Hugging Face Inference API 호출
     const response = await fetch(
-      "https://api-inference.huggingface.co/models/meta-llama/Llama-3.2-3B-Instruct",
+      "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.3",
       {
         method: "POST",
         headers: {
@@ -44,9 +44,7 @@ export default async function handler(req, res) {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          inputs: `<|begin_of_text|><|start_header_id|>system<|end_header_id|>
-
-당신은 성경에 정통한 목회 상담가입니다. 사용자의 상황에 맞는 성경 구절을 찾아주고, 그 의미를 자세히 설명해주세요. 매번 다양한 구절을 추천하세요.<|eot_id|><|start_header_id|>user<|end_header_id|>
+          inputs: `<s>[INST] 당신은 성경에 정통한 목회 상담가입니다. 사용자의 상황에 맞는 성경 구절을 찾아주고, 그 의미를 자세히 설명해주세요. 매번 다양한 구절을 추천하세요.
 
 사용자가 "${situation}" 상황에 있습니다. 
 
@@ -62,9 +60,9 @@ export default async function handler(req, res) {
   "prayer": "이 말씀을 바탕으로 한 진심어린 기도문 (최소 2-3 문장)"
 }
 
-JSON만 응답하고 다른 설명은 하지 마세요. 백틱이나 마크다운 형식도 사용하지 마세요.<|eot_id|><|start_header_id|>assistant<|end_header_id|>`,
+JSON만 응답하고 다른 설명은 하지 마세요. 백틱이나 마크다운 형식도 사용하지 마세요. [/INST]`,
           parameters: {
-            max_new_tokens: 1000,
+            max_new_tokens: 1200,
             temperature: 0.7,
             top_p: 0.95,
             return_full_text: false
