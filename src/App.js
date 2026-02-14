@@ -26,36 +26,14 @@ export default function BibleVerseApp() {
                           situations.find(s => s.id === situation)?.label || situation;
 
     try {
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
+      // Vercel Serverless Function 호출
+      const response = await fetch("/api/get-verse", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-api-key": process.env.REACT_APP_ANTHROPIC_API_KEY || "",
-          "anthropic-version": "2023-06-01"
         },
         body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 1500,
-          messages: [
-            {
-              role: "user",
-              content: `사용자가 "${situationText}" 상황에 있습니다. 
-              
-이 상황에 가장 적합한 성경 구절 하나를 찾아주세요. 매번 다른 구절을 추천해주세요.
-
-다음 정보를 JSON 형식으로만 제공해주세요:
-
-{
-  "reference": "책 장:절 (예: 시편 23:1)",
-  "text": "성경 구절 원문 (한글)",
-  "context": "이 구절이 나온 성경의 앞뒤 문맥과 배경 설명 (2-3 문장)",
-  "meaning": "이 구절이 현재 상황에 어떻게 적용되는지 설명 (2-3 문장)",
-  "prayer": "이 말씀을 바탕으로 한 짧은 기도문"
-}
-
-JSON만 응답하고 다른 설명은 하지 마세요. 백틱이나 마크다운 형식도 사용하지 마세요.`
-            }
-          ],
+          situation: situationText
         })
       });
 
@@ -63,44 +41,27 @@ JSON만 응답하고 다른 설명은 하지 마세요. 백틱이나 마크다�
         throw new Error(`API Error: ${response.status}`);
       }
 
-      const data = await response.json();
-      const content = data.content[0].text;
-      
-      // JSON 파싱
-      let verseData;
-      try {
-        // 백틱 제거 시도
-        const cleanContent = content.replace(/```json\n?|\n?```/g, '').trim();
-        verseData = JSON.parse(cleanContent);
-      } catch (e) {
-        // JSON 매칭 시도
-        const jsonMatch = content.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          verseData = JSON.parse(jsonMatch[0]);
-        } else {
-          throw new Error('JSON 파싱 실패');
-        }
-      }
-      
+      const verseData = await response.json();
       setVerse(verseData);
+
     } catch (error) {
       console.error('Error fetching verse:', error);
       
       // 에러 시 미리 준비된 구절 사용 (백업)
       const backupVerses = {
         comfort: {
-          reference: "시편 23:4",
-          text: "내가 사망의 음침한 골짜기로 다닐지라도 해를 두려워하지 않을 것은 주께서 나와 함께 하심이라",
-          context: "시편 23편은 하나님을 목자로 비유하며 그분의 보호하심을 노래합니다.",
-          meaning: "어려운 시기에도 하나님께서 함께 하시며 보호하십니다.",
-          prayer: "주님, 이 어려운 시간에도 함께 하심을 믿습니다. 아멘."
+          reference: "시편 46:1",
+          text: "하나님은 우리의 피난처시요 힘이시니 환난 중에 만날 큰 도움이시라",
+          context: "시편 46편은 '제국들이 혼란에 빠지고 왕국들이 무너지는' 위기의 시대에 쓰여진 시로, 하나님께서 역사의 주관자이시며 그분의 백성의 피난처가 되신다는 확신을 노래합니다. 이 시는 특별히 예루살렘이 아시리아의 침략을 받았을 때 하나님의 보호하심을 경험한 후에 쓰여진 것으로 여겨집니다.",
+          meaning: "어려운 상황 속에서도 하나님은 우리의 안전한 피난처가 되십니다. 세상이 흔들리고 모든 것이 불안정해 보일 때, 하나님은 변함없이 우리 곁에 계시며 우리에게 필요한 힘과 도움을 주십니다. 이 말씀은 우리가 두려움 가운데서도 하나님을 신뢰할 수 있음을 상기시켜줍니다.",
+          prayer: "사랑하는 하나님 아버지, 제가 힘들고 어려울 때 주님은 저의 피난처가 되어주십니다. 환난 가운데서도 주님께서 저와 함께 하시며 도와주심을 믿습니다. 주님의 평안과 위로로 제 마음을 채워주시고, 이 어려운 시간을 주님과 함께 이겨낼 수 있도록 힘을 주소서. 예수님의 이름으로 기도합니다. 아멘."
         },
         anxiety: {
-          reference: "빌립보서 4:6-7",
-          text: "아무 것도 염려하지 말고 다만 모든 일에 기도와 간구로 하나님께 아뢰라",
-          context: "바울이 감옥에서도 기쁨을 잃지 않으며 쓴 편지입니다.",
-          meaning: "염려를 기도로 바꿀 때 하나님의 평안을 경험합니다.",
-          prayer: "주님, 제 염려를 주님께 맡깁니다. 아멘."
+          reference: "마태복음 6:34",
+          text: "그러므로 내일 일을 위하여 염려하지 말라 내일 일은 내일이 염려할 것이요 한 날의 괴로움은 그 날로 족하니라",
+          context: "예수님께서 산상수훈에서 제자들에게 가르치신 말씀입니다. 이 구절은 먹을 것과 입을 것에 대해 염려하는 사람들에게 주신 위로와 가르침의 일부로, 하늘의 새와 들의 백합화를 예로 들며 하나님의 섬세한 돌보심을 설명하신 후에 나오는 결론입니다.",
+          meaning: "미래에 대한 걱정과 불안은 우리의 마음을 무겁게 짓누릅니다. 하지만 예수님은 우리에게 오늘에 집중하라고 말씀하십니다. 내일의 문제는 내일 주어질 은혜로 해결하면 됩니다. 오늘 하루만 잘 살아내면 되고, 하나님께서 우리의 필요를 아시고 채워주실 것을 신뢰하며 살아가면 됩니다.",
+          prayer: "주님, 저는 미래에 대한 걱정으로 마음이 무겁습니다. 하지만 주님께서 저의 내일도 책임지고 계심을 믿습니다. 오늘 하루를 주님과 함께 충실히 살아가게 하시고, 내일 일은 내일 주실 은혜로 감당할 수 있도록 도와주소서. 주님을 신뢰하며 평안을 누리게 하소서. 아멘."
         }
       };
       
